@@ -11,6 +11,10 @@ import { EmptyState } from '@/components/scanner/empty-state';
 import { ErrorState } from '@/components/scanner/error-state';
 import { Filters, type FilterValues } from '@/components/scanner/filters';
 import { SearchBar } from '@/components/scanner/search-bar';
+import { ActivityChart } from '@/components/scanner/activity-chart';
+import { RiskAlerts } from '@/components/scanner/risk-alerts';
+import { TopAgentsList } from '@/components/scanner/top-agents-list';
+import { RecentActivity } from '@/components/scanner/recent-activity';
 import { cn } from '@/lib/utils/index';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 
@@ -257,6 +261,21 @@ export default function ScannerPage() {
             value={stats?.active24h || 0}
             delay={300}
           />
+        </div>
+
+        {/* Dashboard Widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+          <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: '350ms' }}>
+            <ActivityChart />
+          </div>
+          <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+            <TopAgentsList />
+            <RiskAlerts />
+          </div>
+        </div>
+
+        <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '450ms' }}>
+          <RecentActivity />
         </div>
 
         {/* Main Content */}
