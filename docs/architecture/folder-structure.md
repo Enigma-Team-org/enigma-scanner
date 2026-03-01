@@ -1,125 +1,92 @@
 # Project Structure
 
-## Directory Layout
-
 ```
 enigma/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml                 # CI/CD pipeline
-│       └── deploy.yml             # Deploy to Vercel
 ├── prisma/
-│   ├── schema.prisma              # Prisma schema (Supabase DB)
-│   └── migrations/                # DB migrations
-├── public/
-│   ├── images/
-│   ├── fonts/
-│   └── favicon.ico
+│   └── schema.prisma              # 14 models
 ├── src/
-│   ├── app/                       # Next.js 14 App Router
-│   │   ├── (auth)/               # Auth route group
-│   │   │   └── login/
-│   │   ├── (main)/               # Main app route group
-│   │   │   ├── page.tsx          # Landing page (/)
-│   │   │   ├── scanner/
-│   │   │   │   └── page.tsx      # Scanner page (/scanner)
-│   │   │   └── agent/
-│   │   │       └── [address]/
-│   │   │           └── page.tsx  # Agent profile (/agent/0x123...)
-│   │   ├── api/                  # API Routes
-│   │   │   └── v1/
-│   │   │       ├── agents/
-│   │   │       │   ├── route.ts          # GET /api/v1/agents (list)
-│   │   │       │   ├── register/
-│   │   │       │   │   └── route.ts      # POST /api/v1/agents/register
-│   │   │       │   └── [address]/
-│   │   │       │       ├── route.ts      # GET /api/v1/agents/:address
-│   │   │       │       └── trust-score/
-│   │   │       │           └── route.ts  # GET /api/v1/agents/:address/trust-score
-│   │   │       └── health/
-│   │   │           └── route.ts          # GET /api/v1/health
-│   │   ├── layout.tsx            # Root layout
-│   │   ├── globals.css           # Global styles
-│   │   └── providers.tsx         # React providers wrapper
-│   ├── components/               # React components
-│   │   ├── ui/                   # shadcn/ui components
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── table.tsx
-│   │   │   └── ...
-│   │   ├── scanner/
+│   ├── app/
+│   │   ├── (main)/
+│   │   │   ├── page.tsx           # Landing (/)
+│   │   │   ├── scanner/page.tsx   # Scanner + Dashboard (/scanner)
+│   │   │   └── agents/[address]/page.tsx  # Agent profile
+│   │   └── api/
+│   │       ├── cron/indexer/route.ts      # 4-step cron job
+│   │       └── v1/
+│   │           ├── agents/
+│   │           │   ├── route.ts           # List agents
+│   │           │   ├── register/route.ts  # Register (wallet sig)
+│   │           │   ├── stats/route.ts
+│   │           │   ├── activity/route.ts
+│   │           │   ├── sparklines/route.ts
+│   │           │   └── [address]/
+│   │           │       ├── route.ts               # Agent detail
+│   │           │       ├── trust-score/route.ts   # v1 score
+│   │           │       ├── enhanced-score/route.ts # v2 score
+│   │           │       ├── tracer/route.ts        # TRACER 6D
+│   │           │       ├── trust-history/route.ts
+│   │           │       ├── heartbeats/route.ts
+│   │           │       ├── ratings/route.ts
+│   │           │       └── reports/route.ts
+│   │           ├── indexer/ (refresh, sync, debug)
+│   │           ├── health/route.ts
+│   │           └── visitors/ (track, stats)
+│   ├── components/
+│   │   ├── scanner/               # 11 components + barrel
 │   │   │   ├── agent-table.tsx
-│   │   │   ├── filters.tsx
-│   │   │   └── search-bar.tsx
-│   │   ├── agent/
-│   │   │   ├── trust-score-breakdown.tsx
-│   │   │   ├── heartbeat-chart.tsx
-│   │   │   ├── proxy-analysis.tsx
-│   │   │   └── user-ratings.tsx
-│   │   ├── layout/
-│   │   │   ├── header.tsx
-│   │   │   ├── footer.tsx
-│   │   │   └── sidebar.tsx
-│   │   └── shared/
-│   │       ├── wallet-connect-button.tsx
-│   │       ├── loading-spinner.tsx
-│   │       └── error-boundary.tsx
-│   ├── lib/                      # Utilities & configs
-│   │   ├── supabase/
-│   │   │   ├── client.ts         # Supabase client (browser)
-│   │   │   └── server.ts         # Supabase client (server)
-│   │   ├── blockchain/
-│   │   │   ├── config.ts         # Chain configs (Avalanche mainnet/testnet)
-│   │   │   ├── client.ts         # Viem public client
-│   │   │   └── contracts.ts      # Contract ABIs & addresses
-│   │   ├── utils/
-│   │   │   ├── format.ts         # Format addresses, numbers, dates
-│   │   │   ├── validation.ts     # Zod schemas
-│   │   │   └── logger.ts         # Pino logger config
-│   │   └── constants.ts          # App-wide constants
-│   ├── hooks/                    # Custom React hooks
-│   │   ├── use-agents.ts         # TanStack Query hooks for agents
-│   │   ├── use-wallet.ts         # Wallet connection hooks (wagmi)
-│   │   └── use-debounce.ts
-│   ├── services/                 # Business logic services
-│   │   ├── agent-service.ts      # Agent CRUD operations
-│   │   ├── trust-score-service.ts # Trust score calculation
-│   │   ├── indexer-service.ts    # Blockchain indexer logic
-│   │   └── centinela-service.ts  # Verification engine logic
-│   ├── types/                    # TypeScript types
-│   │   ├── agent.ts
-│   │   ├── trust-score.ts
-│   │   └── api.ts
-│   └── middleware.ts             # Next.js middleware (rate limiting, auth)
-├── supabase/                     # Supabase Edge Functions
-│   └── functions/
-│       ├── indexer/
-│       │   └── index.ts          # Indexer cron job
-│       └── centinela/
-│           └── index.ts          # Centinela verification job
-├── scripts/                      # Utility scripts
-│   ├── seed-db.ts                # Seed database with demo agents
-│   └── generate-types.ts         # Generate Prisma types
-├── .env.example
-├── .env.local
-├── .eslintrc.json
-├── .prettierrc
-├── next.config.js
-├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
+│   │   │   ├── activity-chart.tsx     # Dashboard widget
+│   │   │   ├── kpi-card.tsx           # Dashboard widget
+│   │   │   ├── risk-alerts.tsx        # Dashboard widget
+│   │   │   ├── recent-activity.tsx    # Dashboard widget
+│   │   │   └── top-agents-list.tsx    # Dashboard widget
+│   │   ├── agent/                 # Profile components
+│   │   ├── layout/                # Header + Footer
+│   │   └── shared/                # Loading, Error, Wallet
+│   ├── hooks/                     # 6 hooks
+│   │   ├── use-agents.ts
+│   │   ├── use-agent-trust-history.ts
+│   │   ├── use-agent-activity.ts
+│   │   └── use-agent-sparklines.ts
+│   ├── services/                  # 10 services
+│   │   ├── trust-score-service.ts          # v1
+│   │   ├── tracer-score-service.ts         # TRACER 6D
+│   │   ├── combined-trust-score-service.ts # v2
+│   │   ├── transaction-volume-service.ts   # Snowtrace
+│   │   ├── reputation-indexer-service.ts   # On-chain ratings
+│   │   ├── routescan-indexer-service.ts    # Agent discovery
+│   │   ├── heartbeat-service.ts
+│   │   ├── proxy-detector.ts
+│   │   └── centinela/index.ts
+│   └── lib/utils/
+├── tests/                         # 44 tests (vitest)
+│   ├── tracer-score-service.test.ts   # 31 tests
+│   └── validation.test.ts            # 13 tests
+└── docs/
+    ├── architecture/              # This folder
+    └── superteam/                 # Integration phases 0-4
 ```
 
-## File Naming Conventions
+## API Endpoints (22 total)
 
-| Type | Convention | Example |
-|------|------------|---------|
-| **React Components** | PascalCase export, kebab-case file | `agent-profile.tsx` exports `AgentProfile` |
-| **Pages (App Router)** | kebab-case | `scanner/page.tsx` |
-| **API Routes** | kebab-case | `agents/[address]/route.ts` |
-| **Services** | kebab-case, `-service` suffix | `trust-score-service.ts` |
-| **Hooks** | kebab-case, `use-` prefix | `use-agents.ts` |
-| **Utils** | kebab-case | `format.ts`, `validation.ts` |
-| **Types** | kebab-case | `agent.ts`, `trust-score.ts` |
-| **Constants** | kebab-case | `constants.ts`, `config.ts` |
+| Method | Endpoint | Auth |
+|--------|----------|------|
+| GET | /api/v1/agents | - |
+| POST | /api/v1/agents/register | Wallet sig |
+| GET | /api/v1/agents/stats | - |
+| GET | /api/v1/agents/activity | - |
+| GET | /api/v1/agents/sparklines | - |
+| GET | /api/v1/agents/:address | - |
+| GET | /api/v1/agents/:address/trust-score | - |
+| GET | /api/v1/agents/:address/enhanced-score | - |
+| GET | /api/v1/agents/:address/tracer | - |
+| GET | /api/v1/agents/:address/trust-history | - |
+| GET | /api/v1/agents/:address/heartbeats | - |
+| GET/POST | /api/v1/agents/:address/ratings | Wallet sig (POST) |
+| GET/POST | /api/v1/agents/:address/reports | Wallet sig (POST) |
+| POST | /api/v1/indexer/refresh | CRON_SECRET |
+| POST | /api/v1/indexer/sync | - |
+| GET | /api/v1/indexer/debug | CRON_SECRET |
+| GET | /api/v1/health | - |
+| POST | /api/v1/visitors/track | - |
+| GET | /api/v1/visitors/stats | - |
+| GET | /api/cron/indexer | CRON_SECRET |
