@@ -21,3 +21,15 @@ export {
   useVisitorStats,
   type VisitorStats,
 } from './use-visitor-tracking';
+export {
+  useAgentTrustHistory,
+  type TrustHistoryPoint,
+} from './use-agent-trust-history';
+export {
+  useAgentActivity,
+  type ActivityPoint,
+} from './use-agent-activity';
+export {
+  useAgentSparklines,
+  type SparklineData,
+} from './use-agent-sparklines';

@@ -40,7 +40,7 @@ export async function GET(
 
     logger.info({ address: normalizedAddress }, 'Fetching TRACER score');
 
-    // Fetch agent data
+    // Fetch agent data with all relations needed for TRACER
     const agent = await prisma.agent.findUnique({
       where: { address: normalizedAddress },
       include: {
@@ -65,6 +65,9 @@ export async function GET(
             txCount: true,
           },
         },
+        trustScores: {
+          select: { id: true },
+        },
       },
     });
 
@@ -72,17 +75,33 @@ export async function GET(
       throw new NotFoundError(`Agent not found: ${address}`);
     }
 
-    // Calculate metrics from agent data
+    // Total heartbeats (all time) for Trust.validations
+    const totalHeartbeatsAllTime = await prisma.heartbeatLog.count({
+      where: { agentAddress: normalizedAddress },
+    });
+
+    // Calculate metrics from agent data (24h window)
     const heartbeatCount = agent.heartbeatLogs.length;
     const passedHeartbeats = agent.heartbeatLogs.filter(
       (h) => h.result === 'PASS'
     ).length;
-    const avgResponseTimeMs = heartbeatCount > 0
-      ? agent.heartbeatLogs
-          .filter((h) => h.responseTimeMs !== null)
-          .reduce((sum, h) => sum + (h.responseTimeMs || 0), 0) / 
-        (passedHeartbeats || 1)
+
+    const responseTimes = agent.heartbeatLogs
+      .filter((h) => h.responseTimeMs !== null)
+      .map((h) => h.responseTimeMs as number);
+
+    const avgResponseTimeMs = responseTimes.length > 0
+      ? responseTimes.reduce((sum, t) => sum + t, 0) / responseTimes.length
       : 0;
+
+    // Calculate response time standard deviation for Economics.predictability
+    let responseTimeStdDev = 0;
+    if (responseTimes.length > 1) {
+      const variance = responseTimes.reduce(
+        (sum, t) => sum + Math.pow(t - avgResponseTimeMs, 2), 0
+      ) / responseTimes.length;
+      responseTimeStdDev = Math.sqrt(variance);
+    }
 
     const uptime24h = heartbeatCount > 0
       ? (passedHeartbeats / heartbeatCount) * 100
@@ -98,6 +117,16 @@ export async function GET(
       (Date.now() - agent.created_at.getTime()) / (1000 * 60 * 60 * 24)
     );
 
+    // Parse metadata JSON for capabilities
+    const metadata = (agent.metadata as Record<string, unknown>) || {};
+    const capabilities = (metadata.capabilities as Record<string, unknown>) || {};
+    const services = (metadata.services as Array<Record<string, unknown>>) || [];
+    const skillsDeclared = services.map((s) => (s.name as string) || '').filter(Boolean);
+    const skillsVerified = services
+      .filter((s) => s.verified === true)
+      .map((s) => (s.name as string) || '')
+      .filter(Boolean);
+
     // Build AgentData for TRACER calculation
     const agentData: AgentData = {
       address: normalizedAddress,
@@ -105,20 +134,23 @@ export async function GET(
       proxyType: agent.proxy_type,
       uptime24h,
       avgResponseTimeMs,
+      responseTimeStdDev,
       heartbeatCount,
       passedHeartbeats,
+      totalHeartbeatsAllTime,
       volumeAvax,
       txCount,
       ratings,
       daysSinceRegistration,
       hasVerifiedWallet: !!agent.billing_address,
-      isOpenSource: false, // Would need metadata
-      hasAudits: false, // Would need metadata
-      skillsDeclared: [], // Would need metadata
-      skillsVerified: [], // Would need metadata
-      canDelegate: false, // Would need analysis
-      hasAutoRecovery: false, // Would need analysis
-      delegatedTasksCount: 0,
+      isOpenSource: !!(metadata.open_source || metadata.openSource || (capabilities.open_source)),
+      hasAudits: !!(metadata.audited || metadata.audit || (capabilities.audited)),
+      skillsDeclared,
+      skillsVerified,
+      canDelegate: !!(capabilities.delegation || capabilities.a2a || metadata.a2a),
+      hasAutoRecovery: !!(capabilities.auto_recovery || capabilities.autoRecovery),
+      delegatedTasksCount: Number(capabilities.delegated_tasks || 0),
+      trustScoreSnapshots: agent.trustScores.length,
     };
 
     const tracerBreakdown: TRACERBreakdown = calculateTRACERScore(agentData);

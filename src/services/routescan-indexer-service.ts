@@ -231,6 +231,42 @@ export async function syncAgentsFromRoutescan(maxPages = 20): Promise<RoutesScan
   return result;
 }
 
+/**
+ * SSRF protection: validate that a URL is safe to fetch
+ * Blocks internal networks, private IPs, and non-HTTP(S) protocols
+ */
+export function isUrlSafe(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+
+    // Only allow http/https
+    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+
+    const hostname = parsed.hostname.toLowerCase();
+
+    // Block localhost variants
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '[::1]') return false;
+
+    // Block private/internal IPs
+    const parts = hostname.split('.').map(Number);
+    if (parts.length === 4 && parts.every((n) => !isNaN(n))) {
+      if (parts[0] === 10) return false;                                      // 10.x.x.x
+      if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return false; // 172.16-31.x.x
+      if (parts[0] === 192 && parts[1] === 168) return false;                 // 192.168.x.x
+      if (parts[0] === 169 && parts[1] === 254) return false;                 // link-local
+      if (parts[0] === 0) return false;                                       // 0.x.x.x
+    }
+
+    // Block metadata endpoints (cloud providers)
+    if (hostname === 'metadata.google.internal') return false;
+    if (hostname.endsWith('.internal')) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function deriveAgentAddress(registry: Address, tokenId: bigint): string {
   const hash = keccak256(encodePacked(['address', 'uint256'], [registry, tokenId]));
   return hash.slice(0, 42);
@@ -275,8 +311,13 @@ async function resolveAgentInfo(
     }
   }
 
-  // HTTP URIs - try fetch
+  // HTTP URIs - try fetch (with SSRF protection)
   if (tokenURI.startsWith('http')) {
+    if (!isUrlSafe(tokenURI)) {
+      logger.warn({ tokenURI, tokenId }, 'Blocked unsafe tokenURI');
+      return { name: defaultName, description: defaultDesc };
+    }
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 5000);
