@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
 import { successResponse, handleError } from '@/lib/utils/api-helpers';
-import { NotFoundError } from '@/lib/utils/errors';
+import { NotFoundError, ValidationError } from '@/lib/utils/errors';
 import { createLogger } from '@/lib/utils/logger';
+import { addressSchema } from '@/lib/utils/validation';
 import { prisma } from '@/lib/database/prisma';
 import { 
   calculateTRACERScore, 
@@ -24,12 +25,18 @@ const logger = createLogger('api-tracer-score');
  * - dimensions: Breakdown of all 6 dimensions
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ address: string }> }
 ) {
   try {
     const { address } = await params;
-    const normalizedAddress = address.toLowerCase();
+    const parseResult = addressSchema.safeParse(address);
+    if (!parseResult.success) {
+      throw new ValidationError('Invalid agent address format', {
+        address: parseResult.error.errors[0].message,
+      });
+    }
+    const normalizedAddress = parseResult.data;
 
     logger.info({ address: normalizedAddress }, 'Fetching TRACER score');
 

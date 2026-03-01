@@ -1,0 +1,162 @@
+
+> enigma@0.1.0 build
+> prisma generate && next build
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 59ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Easily identify and fix slow SQL queries in your app. Optimize helps you enhance your visibility: https://pris.ly/--optimize
+
+[@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead.
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · typedRoutes
+    · instrumentationHook
+
+   Creating an optimized production build ...
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (189kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (133kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ⚠ Compiled with warnings
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/Users/jquiceva/Enigma/node_modules/@metamask/sdk/dist/browser/es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./src/lib/blockchain/wagmi-config.ts
+./src/app/providers.tsx
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/Users/jquiceva/Enigma/node_modules/@metamask/sdk/dist/browser/es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./src/lib/blockchain/wagmi-config.ts
+./src/app/providers.tsx
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.send at line: 55) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.send at line: 80) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.hrtime at line: 176) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.setMaxListeners at line: 290) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.on at line: 296) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+A Node.js API is used (process.send at line: 305) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/rate-limiter-flexible/lib/RateLimiterCluster.js
+./node_modules/rate-limiter-flexible/index.js
+
+   Linting and checking validity of types ...
+
+./src/app/api/v1/visitors/stats/route.ts
+17:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/agent/agent-metadata.tsx
+28:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/scanner/search-bar.tsx
+120:6  Warning: React Hook useEffect has a missing dependency: 'updateDropdownRect'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/hooks/use-visitor-tracking.ts
+74:6  Warning: React Hook useEffect has a missing dependency: 'trackMutation'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/services/indexer-service.ts
+17:7  Warning: 'REPUTATION_REGISTRY' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+Project ID Not Configured - update configuration on cloud.reown.com
+Project ID Not Configured - update configuration on cloud.reown.com
+Project ID Not Configured - update configuration on cloud.reown.com
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                               Size     First Load JS
+┌ ƒ /                                     3.46 kB         254 kB
+├ ○ /_not-found                           326 B           197 kB
+├ ƒ /agents/[address]                     23.5 kB         314 kB
+├ ƒ /api/cron/indexer                     0 B                0 B
+├ ƒ /api/v1/agents                        0 B                0 B
+├ ƒ /api/v1/agents/[address]              0 B                0 B
+├ ƒ /api/v1/agents/[address]/heartbeats   0 B                0 B
+├ ƒ /api/v1/agents/[address]/ratings      0 B                0 B
+├ ƒ /api/v1/agents/[address]/reports      0 B                0 B
+├ ƒ /api/v1/agents/[address]/tracer       0 B                0 B
+├ ƒ /api/v1/agents/[address]/trust-score  0 B                0 B
+├ ƒ /api/v1/agents/register               0 B                0 B
+├ ƒ /api/v1/agents/stats                  0 B                0 B
+├ ƒ /api/v1/health                        0 B                0 B
+├ ƒ /api/v1/indexer/debug                 0 B                0 B
+├ ƒ /api/v1/indexer/refresh               0 B                0 B
+├ ƒ /api/v1/indexer/sync                  0 B                0 B
+├ ƒ /api/v1/visitors/stats                0 B                0 B
+├ ƒ /api/v1/visitors/track                0 B                0 B
+├ ○ /register                             13.1 kB         282 kB
+├ ○ /robots.txt                           0 B                0 B
+├ ○ /scanner                              25.7 kB         293 kB
+└ ○ /sitemap.xml                          0 B                0 B
++ First Load JS shared by all             196 kB
+  ├ chunks/2591-0e6046d3eac84cf2.js       101 kB
+  ├ chunks/52774a7f-1a34119d09a12dbc.js   37.2 kB
+  ├ chunks/fd9d1056-13c9cc97f4109211.js   53.8 kB
+  └ other shared chunks (total)           4.08 kB
+
+
+ƒ Middleware                              88 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

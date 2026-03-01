@@ -20,8 +20,19 @@ const logger = createLogger('api-indexer-refresh');
  *
  * This can be called manually from the Scanner page
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
+    // Verify CRON_SECRET in production to prevent public abuse
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (process.env.NODE_ENV === 'production' && cronSecret) {
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        logger.warn('Unauthorized indexer refresh attempt');
+        return new Response('Unauthorized', { status: 401 });
+      }
+    }
+
     logger.info('Starting manual indexer refresh via Routescan');
 
     const startTime = Date.now();

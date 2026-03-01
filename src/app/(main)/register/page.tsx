@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAccount } from 'wagmi';
+import { useAccount, useSignMessage } from 'wagmi';
 import { Loader2, AlertCircle, CheckCircle2, Wallet } from 'lucide-react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -58,9 +58,11 @@ const AGENT_TYPES = [
  */
 export default function RegisterPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, address: walletAddress } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const { mutate: registerAgent, isPending, isError, error } = useRegisterAgent();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
 
   const {
     register,
@@ -80,21 +82,36 @@ export default function RegisterPage() {
 
   const selectedType = watch('type');
 
-  const onSubmit = (data: FormData) => {
-    registerAgent(
-      {
-        ...data,
-        address: data.address.toLowerCase() as `0x${string}`,
-      },
-      {
-        onSuccess: (result) => {
-          setShowSuccess(true);
-          setTimeout(() => {
-            router.push(`/agents/${result?.agent.address}`);
-          }, 2000);
+  const onSubmit = async (data: FormData) => {
+    if (!walletAddress) return;
+
+    try {
+      setIsSigning(true);
+      const agentAddress = data.address.toLowerCase() as `0x${string}`;
+      const message = `Register agent ${agentAddress} on Enigma`;
+      const signature = await signMessageAsync({ message });
+
+      registerAgent(
+        {
+          ...data,
+          address: agentAddress,
+          signature,
+          ownerAddress: walletAddress.toLowerCase() as `0x${string}`,
         },
-      }
-    );
+        {
+          onSuccess: (result) => {
+            setShowSuccess(true);
+            setTimeout(() => {
+              router.push(`/agents/${result?.agent.address}`);
+            }, 2000);
+          },
+        }
+      );
+    } catch {
+      // User rejected signature
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   // Success state
@@ -270,9 +287,14 @@ export default function RegisterPage() {
             type="submit"
             className="w-full"
             size="lg"
-            disabled={!isConnected || isPending}
+            disabled={!isConnected || isPending || isSigning}
           >
-            {isPending ? (
+            {isSigning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sign with wallet...
+              </>
+            ) : isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Registering Agent...

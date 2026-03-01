@@ -53,6 +53,8 @@ export const registerAgentSchema = z.object({
     .trim()
     .optional(),
   type: agentTypeSchema,
+  signature: z.string().min(1, 'Signature is required for owner verification'),
+  ownerAddress: addressSchema,
 });
 
 // ============================================

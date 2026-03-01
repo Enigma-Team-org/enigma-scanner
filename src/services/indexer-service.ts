@@ -10,14 +10,15 @@ const logger = createLogger('indexer-service');
 
 // ── Registry addresses per network ─────────────────────────────────
 const REGISTRY_ADDRESSES = {
-  mainnet: '0x8004A818BFB912233c491871b3d84c89A494BD9e' as Address,
+  mainnet: '0x8004A169FB4a3325136EB29fA0ceB6D2e539a432' as Address,
   testnet: '0x8004A818BFB912233c491871b3d84c89A494BD9e' as Address,
 };
 
-const REPUTATION_REGISTRY = {
-  mainnet: '0x8004B663056A597Dffe9eCcC1965A193B7388713' as Address,
-  testnet: '0x8004B663056A597Dffe9eCcC1965A193B7388713' as Address, // TODO: Add testnet address when deployed
-};
+// TODO: Enable when reputation features are implemented
+// const REPUTATION_REGISTRY = {
+//   mainnet: '0x8004B663056A597Dffe9eCcC1965A193B7388713' as Address,
+//   testnet: '0x8004B663056A597Dffe9eCcC1965A193B7388713' as Address,
+// };
 
 // ── Dedicated RPC clients (independent of app's CHAIN_ENV) ─────────
 const mainnetClient = createPublicClient({

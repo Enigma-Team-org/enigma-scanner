@@ -2,8 +2,9 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { registerAgentSchema } from '@/lib/utils/validation';
 import { successResponse, handleError } from '@/lib/utils/api-helpers';
-import { ValidationError, ContractNotFoundError } from '@/lib/utils/errors';
+import { ValidationError, ContractNotFoundError, UnauthorizedError } from '@/lib/utils/errors';
 import { createLogger } from '@/lib/utils/logger';
+import { verifyWalletSignature } from '@/lib/utils/auth';
 import {
   readAgentMetadata,
   verifyContractExists,
@@ -35,7 +36,15 @@ export async function POST(request: NextRequest) {
 
     const validatedData = registerAgentSchema.parse(body);
 
-    const { address, name, type, description } = validatedData;
+    const { address, name, type, description, signature, ownerAddress } = validatedData;
+
+    // Verify wallet signature — owner must prove they control the wallet
+    const verifiedOwner = await verifyWalletSignature(
+      ownerAddress,
+      signature,
+      `Register agent ${address} on Enigma`
+    );
+    logger.info({ verifiedOwner }, 'Owner wallet verified');
 
     // Check if agent already registered
     const exists = await agentExists(address);
@@ -56,13 +65,20 @@ export async function POST(request: NextRequest) {
     logger.info({ address }, 'Reading ERC-804 metadata from contract');
     const metadata = await readAgentMetadata(address);
 
+    // Verify the signer is the actual owner of the contract
+    if (metadata.owner && metadata.owner.toLowerCase() !== verifiedOwner) {
+      throw new UnauthorizedError(
+        'Signer is not the owner of this agent contract'
+      );
+    }
+
     // Create agent in database with PENDING status
     const agentData: CreateAgentInput = {
       address,
       name,
       type,
       description,
-      owner_address: metadata.owner,
+      owner_address: metadata.owner || verifiedOwner,
       billing_address: metadata.billingAddress,
       status: 'PENDING',
     };
