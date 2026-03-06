@@ -20,6 +20,10 @@ import { ReportModal } from '@/components/agent/report-modal';
 import { ReputationContract } from '@/components/agent/reputation-contract';
 import { AgentMetadataDisplay } from '@/components/agent/agent-metadata';
 import { useAgent, type AgentDetail } from '@/hooks/use-agent';
+import { useCombinedScore } from '@/hooks/use-combined-score';
+import { DOFGovernanceBadge } from '@/components/shared/dof-governance-badge';
+import { TrustDimensions } from '@/components/agent/trust-dimensions';
+import { DOFDetailsCard } from '@/components/agent/dof-details-card';
 import { cn } from '@/lib/utils/index';
 import {
   BarChart3,
@@ -63,6 +67,7 @@ export default function AgentProfilePage() {
   const { data: agent, isLoading, isError, error, refetch } = useAgent(address, {
     refetchInterval: 60 * 1000, // Refetch every minute
   });
+  const { data: combinedScore } = useCombinedScore(address);
 
   // Copy address to clipboard
   const handleCopy = () => {
@@ -157,6 +162,13 @@ export default function AgentProfilePage() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-2xl font-bold text-white">{agent.name}</h1>
+                {combinedScore?.dof && (
+                  <DOFGovernanceBadge
+                    governanceStatus={combinedScore.dof.status}
+                    z3Verified={combinedScore.dof.z3_verified}
+                    z3Theorems={combinedScore.dof.z3_theorems}
+                  />
+                )}
                 <span className={cn('px-2 py-0.5 rounded text-xs font-medium', statusStyle.bg, statusStyle.text)}>
                   {agent.status}
                 </span>
@@ -279,6 +291,17 @@ export default function AgentProfilePage() {
           <TabsContent value="overview" className="space-y-6">
             {/* Smart Contract Analysis - Full Width */}
             <ReputationContract agent={agent} />
+
+            {/* Combined Trust Dimensions (DOF + Centinela + Community) */}
+            {combinedScore && (
+              <div className="rounded-xl bg-[rgba(15,17,23,0.6)] backdrop-blur-xl border border-[rgba(255,255,255,0.06)] p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Combined Trust Dimensions</h3>
+                <TrustDimensions data={combinedScore} />
+              </div>
+            )}
+
+            {/* DOF Governance Details */}
+            {combinedScore && <DOFDetailsCard data={combinedScore} />}
 
             {/* Trust Score Calculation */}
             <TrustScoreCalculation agent={agent} />

@@ -22,6 +22,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { type Agent } from '@/hooks/use-agents';
+import { useCombinedScore } from '@/hooks/use-combined-score';
+import { DOFGovernanceBadge } from '@/components/shared/dof-governance-badge';
 import { cn } from '@/lib/utils/index';
 
 interface AgentTableProps {
@@ -117,6 +119,34 @@ function truncateAddress(address: string): string {
 }
 
 /**
+ * TrustScoreCell — renders trust score + DOF badge (if available)
+ */
+function TrustScoreCell({ address, score }: { address: string; score: number }) {
+  const { data } = useCombinedScore(address);
+
+  return (
+    <div className="inline-flex items-center gap-1.5">
+      <div
+        className={cn(
+          'inline-flex items-center justify-center px-3 py-1.5 rounded-md font-bold text-sm',
+          getTrustScoreColor(score)
+        )}
+      >
+        {score}
+      </div>
+      {data?.dof && (
+        <DOFGovernanceBadge
+          governanceStatus={data.dof.status}
+          z3Verified={data.dof.z3_verified}
+          z3Theorems={data.dof.z3_theorems}
+          size="sm"
+        />
+      )}
+    </div>
+  );
+}
+
+/**
  * Column definitions for the agent table
  */
 const columns: ColumnDef<Agent>[] = [
@@ -194,19 +224,9 @@ const columns: ColumnDef<Agent>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => {
-      const score = row.original.trust_score;
-      return (
-        <div
-          className={cn(
-            'inline-flex items-center justify-center px-3 py-1.5 rounded-md font-bold text-sm',
-            getTrustScoreColor(score)
-          )}
-        >
-          {score}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <TrustScoreCell address={row.original.address} score={row.original.trust_score} />
+    ),
     size: 120,
   },
   {

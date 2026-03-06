@@ -5,6 +5,7 @@ import { syncAgentsFromRoutescan } from '@/services/routescan-indexer-service';
 import { recalculateAllScores } from '@/services/trust-score-service';
 import { syncTransactionVolumes } from '@/services/transaction-volume-service';
 import { syncRatingsFromReputation } from '@/services/reputation-indexer-service';
+import { prisma } from '@/lib/database/prisma';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max
@@ -58,6 +59,13 @@ export async function GET(request: NextRequest) {
 
     // Step 4: Recalculate trust scores for all agents
     const updatedScores = await recalculateAllScores();
+
+    // Step 5: Refresh combined trust materialized view
+    await prisma.$executeRawUnsafe(
+      'REFRESH MATERIALIZED VIEW CONCURRENTLY combined_trust_view'
+    ).catch((err) => {
+      logger.error({ error: err }, 'Combined trust view refresh failed (non-blocking)');
+    });
 
     const duration = Date.now() - startTime;
 
