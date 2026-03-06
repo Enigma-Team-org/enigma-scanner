@@ -1,3 +1,7 @@
+// DEPRECATED: This service has been replaced by DOF governance scores
+// DOF provides formal Z3 verification, AST safety analysis, and constitutional governance
+// via combined_trust_view (SQL materialized view joining trust_scores + dof_trust_scores + ratings)
+// Kept for reference — remove after 30 days if no issues (Phase 4, 2026-03-05)
 import { createLogger } from '@/lib/utils/logger';
 
 const logger = createLogger('tracer-score-service');

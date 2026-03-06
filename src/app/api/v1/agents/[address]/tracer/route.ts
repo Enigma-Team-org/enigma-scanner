@@ -1,11 +1,14 @@
+// DEPRECATED Phase 4: TRACER replaced by DOF governance + Centinela v1
+// Use GET /api/v1/agents/:address/combined-score instead
+// Kept for reference — remove after 30 days if no issues (2026-03-05)
 import { NextRequest } from 'next/server';
 import { successResponse, handleError } from '@/lib/utils/api-helpers';
 import { NotFoundError, ValidationError } from '@/lib/utils/errors';
 import { createLogger } from '@/lib/utils/logger';
 import { addressSchema } from '@/lib/utils/validation';
 import { prisma } from '@/lib/database/prisma';
-import { 
-  calculateTRACERScore, 
+import {
+  calculateTRACERScore,
   type AgentData,
   type TRACERBreakdown,
 } from '@/services/tracer-score-service';

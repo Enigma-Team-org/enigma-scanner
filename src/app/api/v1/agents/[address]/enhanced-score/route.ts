@@ -1,3 +1,6 @@
+// DEPRECATED Phase 4: replaced by combined_trust_view (SQL materialized view)
+// Use GET /api/v1/agents/:address/combined-score instead
+// Kept for reference — remove after 30 days if no issues (2026-03-05)
 import { NextRequest } from 'next/server';
 import { successResponse, handleError } from '@/lib/utils/api-helpers';
 import { NotFoundError, ValidationError } from '@/lib/utils/errors';

@@ -1,3 +1,7 @@
+// DEPRECATED: replaced by combined_trust_view (SQL materialized view)
+// The view combines: trust_scores (Centinela) + dof_trust_scores (DOF) + ratings
+// API endpoint: GET /api/v1/agents/:address/combined-score
+// Kept for reference — remove after 30 days if no issues (Phase 4, 2026-03-05)
 import { prisma } from '@/lib/database/prisma';
 import { createLogger } from '@/lib/utils/logger';
 import { calculateTrustScore, type TrustScoreBreakdown } from './trust-score-service';
